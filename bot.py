@@ -86,7 +86,7 @@ def is_editing_allowed():
     """Проверяет, разрешено ли редактирование данных (до 9:00)."""
     now = datetime.now().time()
     # ОШИБКА: у вас стоит 22:00 вместо 9:00!
-    return now <= time(9, 0)  # True если время ДО 9:00 включительно
+    return now <= time(22, 0)  # True если время ДО 9:00 включительно
 
 def get_time_until_deadline():
     """Возвращает строку с оставшимся временем до дедлайна."""
@@ -232,3 +232,4 @@ if __name__ == '__main__':
     init_db()
     print("Бот запущен...")
     bot.polling(none_stop=True)
+
