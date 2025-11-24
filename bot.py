@@ -5,6 +5,13 @@ import telebot
 
 # --- КОНФИГУРАЦИЯ ---
 API_TOKEN = os.environ.get('8549278171:AAHSCYnVBVqo-ZHVHclJpBo53bd10rsxmOs')
+# Проверяем, что токен действительно задан
+if not API_TOKEN:
+    raise ValueError("❌ Ошибка: переменная окружения API_TOKEN не установлена. "
+                     "Добавь её в настройках Render → Environment.")
+# Создаём экземпляр бота
+
+bot = telebot.TeleBot(API_TOKEN)
 CHAT_ID_STOLOVAYA = None
 ADMIN_ID = 1085832439  # Замени на реальный ID
 
@@ -210,4 +217,5 @@ if __name__ == '__main__':
     print("Бот запущен...")
 
     bot.polling(none_stop=True)
+
 
