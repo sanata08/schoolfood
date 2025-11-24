@@ -8,7 +8,7 @@ API_TOKEN = os.environ.get('8549278171:AAHSCYnVBVqo-ZHVHclJpBo53bd10rsxmOs')
 CHAT_ID_STOLOVAYA = None
 ADMIN_ID = 1085832439  # Замени на реальный ID
 
-bot = telebot.TeleBot(8549278171:AAHSCYnVBVqo-ZHVHclJpBo53bd10rsxmOs)
+bot = telebot.TeleBot(API_TOKEN)
 
 # --- РАБОТА С БАЗОЙ ДАННЫХ ---
 def init_db():
@@ -210,3 +210,4 @@ if __name__ == '__main__':
     print("Бот запущен...")
 
     bot.polling(none_stop=True)
+
