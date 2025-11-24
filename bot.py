@@ -4,19 +4,24 @@ from datetime import datetime, time
 import telebot
 
 # --- КОНФИГУРАЦИЯ ---
-API_TOKEN = os.environ.get('8549278171:AAHSCYnVBVqo-ZHVHclJpBo53bd10rsxmOs')
+# ОШИБКА: вы передаете токен вместо имени переменной!
+# БЫЛО: API_TOKEN = os.environ.get('8549278171:AAHSCYnVBVqo-ZHVHclJpBo53bd10rsxmOs')
+# СТАЛО:
+API_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')  # Ищем переменную с именем TELEGRAM_BOT_TOKEN
+
 print("API_TOKEN =", API_TOKEN)
+
 # Проверяем, что токен действительно задан
 if not API_TOKEN:
-    raise ValueError("❌ Ошибка: переменная окружения API_TOKEN не установлена. "
-                     "Добавь её в настройках Render → Environment.")
-# Создаём экземпляр бота
+    raise ValueError("❌ Ошибка: переменная окружения TELEGRAM_BOT_TOKEN не установлена. "
+                     "Добавь её в настройках хостинга → Environment Variables.")
 
+# Создаём экземпляр бота (УБЕРИ ДУБЛИРОВАНИЕ!)
+# БЫЛО: bot = telebot.TeleBot(API_TOKEN) - два раза!
 bot = telebot.TeleBot(API_TOKEN)
+
 CHAT_ID_STOLOVAYA = None
-ADMIN_ID = 1085832439  # Замени на реальный ID
-
-bot = telebot.TeleBot(API_TOKEN)
+ADMIN_ID = 1085832439  # Убедитесь, что это правильный ID
 
 # --- РАБОТА С БАЗОЙ ДАННЫХ ---
 def init_db():
@@ -80,7 +85,8 @@ def get_today_report():
 def is_editing_allowed():
     """Проверяет, разрешено ли редактирование данных (до 9:00)."""
     now = datetime.now().time()
-    return now <= time(22, 0)  # True если время ДО 9:00 включительно
+    # ОШИБКА: у вас стоит 22:00 вместо 9:00!
+    return now <= time(9, 0)  # True если время ДО 9:00 включительно
 
 def get_time_until_deadline():
     """Возвращает строку с оставшимся временем до дедлайна."""
@@ -92,7 +98,12 @@ def get_time_until_deadline():
     else:
         time_left = deadline - now
         minutes = int(time_left.total_seconds() // 60)
-        return f"⏳ До окончания сбора данных: {minutes} минут"
+        hours = minutes // 60
+        remaining_minutes = minutes % 60
+        if hours > 0:
+            return f"⏳ До окончания сбора данных: {hours}ч {remaining_minutes}м"
+        else:
+            return f"⏳ До окончания сбора данных: {remaining_minutes} минут"
 
 # --- КОМАНДЫ БОТА ---
 @bot.message_handler(commands=['start'])
@@ -114,8 +125,12 @@ def send_welcome(message):
 `10Б 2 18`
 
 *Внимание: редактирование данных доступно только до 9:00 утра!*
+
+**Доступные команды:**
+/time - узнать оставшееся время
+/getmyid - узнать свой ID
     """
-    bot.reply_to(message, welcome_text)
+    bot.reply_to(message, welcome_text, parse_mode='Markdown')
 
 @bot.message_handler(commands=['time'])
 def check_time(message):
@@ -179,7 +194,7 @@ def get_my_id(message):
 def handle_data(message):
     """Обрабатывает сообщения с данными о питании."""
     
-    # ПРОВЕРКА ВРЕМЕНИ - ГЛАВНОЕ ИЗМЕНЕНИЕ!
+    # ПРОВЕРКА ВРЕМЕНИ
     if not is_editing_allowed():
         bot.reply_to(message, "❌ *Редактирование данных закрыто!*\n\nПрием данных осуществляется только до 9:00 утра. Для внесения изменений обратитесь к дежурному администратору.", parse_mode='Markdown')
         return
@@ -216,8 +231,4 @@ def handle_data(message):
 if __name__ == '__main__':
     init_db()
     print("Бот запущен...")
-
     bot.polling(none_stop=True)
-
-
-
